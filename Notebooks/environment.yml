@@ -1,4 +1,4 @@
-name: llms-in-medicine
+name: llm-radiology
 channels:
   - conda-forge
 dependencies:
