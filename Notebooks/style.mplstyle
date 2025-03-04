@@ -1,0 +1,52 @@
+# mplstyle_file.mplstyle
+
+# Figure settings
+figure.figsize: 8, 4
+figure.dpi: 300
+figure.facecolor: white
+figure.constrained_layout.use : True
+
+# Axes settings
+axes.axisbelow: True
+axes.spines.top: False
+axes.spines.left: True
+axes.spines.right: False
+axes.facecolor: None
+axes.labelweight: bold
+
+# Font size settings
+axes.titlesize: 14       
+axes.labelsize: 12       
+xtick.labelsize: 10      
+ytick.labelsize: 10      
+legend.fontsize: 12      
+figure.titlesize: 16     
+
+# Legend settings
+legend.loc: center left
+# legend.title_fontweight: bold
+# legend.fontweight: bold
+legend.handlelength: 1.5
+legend.borderaxespad: 0.7
+legend.columnspacing: 1.5
+
+# Line settings
+lines.linewidth: 1.5
+lines.markeredgecolor: black
+lines.markersize: 12
+
+# Font settings
+font.family: Arial
+
+# Grid settings
+grid.color: black
+grid.alpha: 0.2
+grid.linestyle: (1, 5) 
+
+# Color settings
+axes.prop_cycle: cycler('color', ['808080', '33cc33', '66b2ff', '9966ff', 'ff9900'])
+
+# Output format
+savefig.format: pdf
+savefig.bbox: tight
+savefig.dpi: 300
