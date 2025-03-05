@@ -4,7 +4,7 @@ Code for the paper "The effect of medical explanations from large language model
 
 ## Authors and contact
 
-Philipp Spitzer, Daniel Hendriks, Sarah Schlaeger, Jan Rudolph, Niklas Kühl, Boj Friedrich Hoppe, and Stefan Feuerriegel.
+Philipp Spitzer, Daniel Hendriks, Sarah Schlaeger, Jan Rudolph, Jens Ricke, Niklas Kühl, Boj Friedrich Hoppe, and Stefan Feuerriegel.
 
 Correspondence to: spitzer@kit.edu & feuerriegel@lmu.de
 
