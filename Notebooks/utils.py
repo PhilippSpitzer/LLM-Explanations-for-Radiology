@@ -8,7 +8,7 @@ from statsmodels.regression.mixed_linear_model import MixedLMResultsWrapper
 import textwrap
 import matplotlib.ticker as mtick
 import re
-
+import warnings
 
 
 order_of_supplements = []
@@ -81,7 +81,10 @@ def add_grid(ax=None):
     
 def save_plot(name,ax=None): 
     if ax is None: ax = plt.gca()
-    ax.get_figure().savefig(f'../Results/Plots/{name}.pdf')
+    try:
+        ax.get_figure().savefig(f'../Results/Plots/{name}.pdf')
+    except FileNotFoundError:
+        warnings.warn('Create "../Results/Plots folder" to save figure files')
  
 def annotate_tests(p_values,order,ymax,ax=None, low_test_margin=0.04,high_test_margin=0.015,low_offset=0):
     if ax is None: ax = plt.gca()
@@ -131,27 +134,7 @@ def prepare_adh_df(df,map_values):
 
 
 
-### Save to a file or print
-# def save_tex(fn, model, caption=None, label=None, fontsize='footnotesize'):
-#     sum = f"\\begin{{table}}\n\{fontsize}{{\n"
-#     sum += model.summary().as_latex()
-#     cap_str = '%\caption{OLS Regression Results}'
-#     if caption is not None: 
-#         caption = f'\caption{{{caption}}}'
-#     else: 
-#         caption = f'\caption{{{fn}}}'
-#     if label is not None: 
-#         caption += f'\n\label{{{label}}}'
-#     else:
-#         label = fn.replace(' ','_') 
-#         caption += f'\n\label{{tab:{label}}}'
-#     sum = sum.replace(cap_str,caption)
-#     sum += '\n}\n\end{table}'
-#     order_of_supplements.append(fn)
-#     with open(f"../Results/Tex/{fn}.tex", "w") as f:
-#         f.write(sum)
-        
-### latex functions
+
 
 def get_tabular(model=None,summary_df=None, const_name="Intercept", replacements={'Ai':'AI','It':'IT'},
                 index_formatter=None, n_dc = 3, column_format='lrrrr',
@@ -221,8 +204,11 @@ def save_tex(fn,model=None,summary_df=None,caption=None, label=None,center=True,
     tabular = get_tabular(model=model,summary_df=summary_df,**kwargs)
     table = to_table(tabular,fn,caption,label,center,rowwidth,footnotesize)
     order_of_supplements.append(fn)
-    with open(f"../Results/Tex/{fn}.tex", 'w') as f: 
-        f.write(table)
+    try:
+        with open(f"../Results/Tex/{fn}.tex", 'w') as f: 
+            f.write(table)
+    except FileNotFoundError:
+        warnings.warn('Create "../Results/Tex folder" to save tex files')
         
 # Save a dataframe to tex file
 def save_tabtex(o, fn, cap='Caption', lab='tab:my_label',escape=True, n_dec=3,footnotesize=True,rowwidth=1):
@@ -239,8 +225,11 @@ def save_tabtex(o, fn, cap='Caption', lab='tab:my_label',escape=True, n_dec=3,fo
     tex += f'\label{{{lab}}}\n'
     tex += '\\end{table}'
     
-    with open(f"../Results/Tex/{fn}.tex", "w") as f:
-        f.write(tex)
+    try:
+        with open(f"../Results/Tex/{fn}.tex", "w") as f:
+            f.write(tex)
+    except FileNotFoundError:
+        warnings.warn('Create "../Results/Tex folder" to save tex files')
     order_of_supplements.append(fn)
 
 
@@ -284,18 +273,26 @@ def consolidate_tex(add_header=False):
     fn = "supplementary_materials.tex"
     #for f in reversed(sorted(os.listdir('../Results/Tex',))):
     for f in order_of_supplements:
-        f = f + '.tex'
-        print(f)
-        if f == fn: continue
-        if add_header:
-            o += f"\section*{{{f.replace('.tex','')}}}\n"
-            o += f"\label{{sec:{f.replace(' ','_')}}}\n"
-        with open(f"../Results/Tex/{f}", "r") as f: 
-            o += escape_percent(f.read())
-        o += '\n\n'
-        
-    with open(f"../Results/Tex/{fn}", "w") as f:    
-        f.write(o)
+        try:
+            f = f + '.tex'
+            print(f)
+            if f == fn: continue
+            if add_header:
+                o += f"\section*{{{f.replace('.tex','')}}}\n"
+                o += f"\label{{sec:{f.replace(' ','_')}}}\n"
+                    
+            with open(f"../Results/Tex/{f}", "r") as f: 
+                o += escape_percent(f.read())
+            o += '\n\n'
+        except FileNotFoundError:
+            warnings.warn('Create "../Results/Tex folder" to save tex files')
+    
+    try:
+        with open(f"../Results/Tex/{fn}", "w") as f:    
+            f.write(o)
+    except FileNotFoundError:
+        warnings.warn('Create "../Results/Tex folder" to consolidatae tex files')
+    
         
 def get_gpt_review_df():
        output_review = pd.read_excel('../Data/LLM_output_reviews.xlsx',)
