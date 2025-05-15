@@ -8,7 +8,7 @@ from statsmodels.regression.mixed_linear_model import MixedLMResultsWrapper
 import textwrap
 import matplotlib.ticker as mtick
 import re
-import warnings
+import numpy as np
 
 
 order_of_supplements = []
@@ -79,12 +79,10 @@ def add_grid(ax=None):
     if ax is None: ax = plt.gca()
     ax.grid(visible=True,which='major',axis='x')
     
-def save_plot(name,ax=None): 
+def save_plot(name,ax=None,format='pdf'): 
     if ax is None: ax = plt.gca()
-    try:
-        ax.get_figure().savefig(f'../Results/Plots/{name}.pdf')
-    except FileNotFoundError:
-        warnings.warn('Create "../Results/Plots folder" to save figure files')
+    try: ax.get_figure().savefig(f'../Results/Plots/{name}.{format}')
+    except FileNotFoundError: pass
  
 def annotate_tests(p_values,order,ymax,ax=None, low_test_margin=0.04,high_test_margin=0.015,low_offset=0):
     if ax is None: ax = plt.gca()
@@ -125,16 +123,31 @@ def fit(df,target,features,model=sm.OLS):
     return model
 
 ### get data
-def prepare_adh_df(df,map_values):
+def prepare_adh_df(df,map_values=None):
+    "map_values: defaults to {'less':'yes','more':'yes'};"
     df_adh_map = pd.read_excel('../Data/adherence_summary.xlsx',).rename({'answer_participant':'answer'},axis=1)
     df_adh = df[~(df.condition=='control')]
     df_adh = pd.merge(df_adh.reset_index(),df_adh_map,how='left',on=['question','answer','condition'])
+
+    if map_values is None: map_values = {'less':'yes','more':'yes'}
     df_adh['Adherence'] = df_adh['Adherence'].replace(map_values).map({'yes':1,'no':0})
-    return df_adh.groupby('ResponseId').agg({'condition': 'first', 'Adherence': 'mean',})
+    
+    df_adh['LLM correct'] = (df_adh[['Diagnosis correctness','Explanation correctness']] == 'Yes').all(axis=1)
+    df_adh['Adherence_based_on_correctness'] = df_adh.apply(lambda x: map_adherence_by_correctness(x['Diagnosis correctness'],x['judgement']), axis=1)
+    df_adh['Adherence'] = df_adh['Adherence_based_on_correctness'].fillna(df_adh['Adherence'])
+    df_adh['Overriding'] = 1 - df_adh['Adherence']
+    
+    return df_adh
 
 
+def map_adherence_by_correctness(a,b):
+    if a == 'Yes' and b == 'Yes': return 1
+    elif a == 'Yes' and b == 'No': return 0
+    elif a == 'No' and b == 'Yes': return 0
+    else: return np.nan
 
-
+        
+### latex functions
 
 def get_tabular(model=None,summary_df=None, const_name="Intercept", replacements={'Ai':'AI','It':'IT'},
                 index_formatter=None, n_dc = 3, column_format='lrrrr',
@@ -208,7 +221,7 @@ def save_tex(fn,model=None,summary_df=None,caption=None, label=None,center=True,
         with open(f"../Results/Tex/{fn}.tex", 'w') as f: 
             f.write(table)
     except FileNotFoundError:
-        warnings.warn('Create "../Results/Tex folder" to save tex files')
+        pass
         
 # Save a dataframe to tex file
 def save_tabtex(o, fn, cap='Caption', lab='tab:my_label',escape=True, n_dec=3,footnotesize=True,rowwidth=1):
@@ -228,43 +241,18 @@ def save_tabtex(o, fn, cap='Caption', lab='tab:my_label',escape=True, n_dec=3,fo
     try:
         with open(f"../Results/Tex/{fn}.tex", "w") as f:
             f.write(tex)
+        order_of_supplements.append(fn)
     except FileNotFoundError:
-        warnings.warn('Create "../Results/Tex folder" to save tex files')
-    order_of_supplements.append(fn)
+        pass
 
 
-# def save_mixedlm(fn, model, caption=None, label=None, fontsize='footnotesize'):
-    
-#     if caption is not None: caption = f'\caption{{{caption}}}'
-#     else: caption = f'\caption{{{fn}}}'
-#     if label is not None: caption += f'\n\label{{{label}}}'
-#     else:
-#         label = fn.replace(' ','_') 
-#         caption += f'\n\label{{tab:{label}}}'
-            
-#     sum = model.summary().as_latex()
-#     sum = sum.replace('\n\caption{Mixed Linear Model Regression Results}', '')
-#     sum = sum.replace('\n\label{}', '')
-#     sum = sum.replace('\\bigskip', '')
-#     sum = sum.strip()
-#     sum = sum.split('\end{table}')
-#     sum = sum[0] + caption + sum[1] + '\n\end{table}'
-#     with open(f"../Results/Tex/{fn}.tex", "w") as f:
-#         f.write(sum)
-    
-        
-        
+
 def escape_percent(s):
     return re.sub(r'(?<!\\)%', r'\%', s)
 
 def latex_minus_and_p(s):
     s = re.sub(r'-(?=\d)', r'$-$', s)
     s = re.sub(r"P-", r"$P$-", s)
-    # s = re.sub(r"P <", r"$P$ <", s)
-    # s = re.sub(r"P >", r"$P$ >", s)
-    # pattern = r"(\[[^$]*?)-(\d+)([^$]*?\])"
-    # replacement = r"\1$-$\2\3"
-    # s = re.sub(pattern, replacement, s)
     return s
     
 # consolidate tex files
@@ -272,27 +260,21 @@ def consolidate_tex(add_header=False):
     o = ''
     fn = "supplementary_materials.tex"
     #for f in reversed(sorted(os.listdir('../Results/Tex',))):
-    for f in order_of_supplements:
-        try:
+    try:
+        for f in order_of_supplements:
             f = f + '.tex'
             print(f)
             if f == fn: continue
             if add_header:
                 o += f"\section*{{{f.replace('.tex','')}}}\n"
                 o += f"\label{{sec:{f.replace(' ','_')}}}\n"
-                    
             with open(f"../Results/Tex/{f}", "r") as f: 
                 o += escape_percent(f.read())
             o += '\n\n'
-        except FileNotFoundError:
-            warnings.warn('Create "../Results/Tex folder" to save tex files')
-    
-    try:
+        
         with open(f"../Results/Tex/{fn}", "w") as f:    
             f.write(o)
-    except FileNotFoundError:
-        warnings.warn('Create "../Results/Tex folder" to consolidatae tex files')
-    
+    except FileNotFoundError: pass
         
 def get_gpt_review_df():
        output_review = pd.read_excel('../Data/LLM_output_reviews.xlsx',)
