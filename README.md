@@ -20,9 +20,11 @@ In our large-scale randomized study, we investigated the impact of different exp
   - Cases/: Subdirectory containing case images.
   - `Claude_output_review_with_images_BFH.xlsx`: Evaluation results of Claude-generated diagnoses.
   - `data_evaluated.xlsx`: Preprocessed survey data.
+  - `image-analysis.xlsx`: Meta data of images included in patient cases.
   - `judgement_rad.xlsx`: Evaluation of participants' answers.
   - `LLM_output_reviews.xlsx`: Evaluation of GPT-4 generated diagnoses.
-  - `raw_data.xlsx`: Raw data from Qualtrics survey.
+  - `raw_data.xlsx/.csv`: Raw data from Qualtrics survey.
+  - `specialization-task-mapping_BFH.xlsx`: Maps how patient cases relate to specialities.
 - Notebooks/: Directory containing Jupyter notebooks and utility files.
   - `01_preprocessing.ipynb`: Preprocessing of raw survey data.
   - `02_testing_and_regression.ipynb`: Statistical analysis notebook.
