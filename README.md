@@ -18,7 +18,7 @@ In our large-scale randomized study, we investigated the impact of different exp
   - `adherence_summary.xlsx`: Evaluation results of adherence to diagnoses recommendations.
   - `adherence_eval_dd-top5.xlsx`: Evaluation results of adherence to differential diagnoses options.
   - Cases/: Subdirectory containing case images.
-  - `Claude_output_reviews.xlsx`: Evaluation results of Claude-generated diagnoses.
+  - `Claude_output_review_with_images_BFH.xlsx`: Evaluation results of Claude-generated diagnoses.
   - `data_evaluated.xlsx`: Preprocessed survey data.
   - `judgement_rad.xlsx`: Evaluation of participants' answers.
   - `LLM_output_reviews.xlsx`: Evaluation of GPT-4 generated diagnoses.
