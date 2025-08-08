@@ -38,7 +38,7 @@ In our large-scale randomized study, we investigated the impact of different exp
   - `LLMs_in_Medicine.qsf`: Qualtrics survey file.
 
 ## Usage
-To set up the required environment:
+We run the code using Python 3.11.11 (tested on macOS Sequoia 15.5). Package versions are specified in the included `yml` file. To set up the required environment (Setup: approx. 10 minutes, Running the notebook: approx. 5 minutes):
 
 1. Install conda or miniconda if not already installed
 2. Clone this repository
@@ -48,4 +48,4 @@ To set up the required environment:
    conda env create -f Notebooks/environment.yml
    conda activate llm-radiology
    ```
-5. Run notebook `02_testing_and_regression.ipynb` to reproduce statistical analyses and figures from our paper.
+5. Run notebook `02_testing_and_regression.ipynb` to reproduce statistical analyses and figures from our paper. 
